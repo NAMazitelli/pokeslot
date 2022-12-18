@@ -1,4 +1,4 @@
-import { Board } from '../src/server/classes/Board.class'
+import { Board } from '../../src/server/classes/Board.class'
 
 export const handler = async () => {
   const board = new Board()

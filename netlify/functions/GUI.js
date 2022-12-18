@@ -1,4 +1,4 @@
-import * as GUI from '../src/server/resources/GUI.json'
+import * as GUI from '../../src/server/resources/GUI.json'
 
 export const handler = async () => {
   return {
