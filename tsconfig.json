@@ -1,0 +1,13 @@
+{
+  "compilerOptions": {
+    "target": "es5",
+    "module": "commonjs",
+    "lib": ["ES2015", "DOM"],
+    "strict": true,
+    "noEmit": true,
+    "resolveJsonModule": true,
+    "types": ["babylonjs", "babylonjs-gui", "babylonjs-materials", "jest"]
+  },
+  "include": ["src/**/*"],
+  "exclude": ["tests/*.test.ts"]
+}
