@@ -15,9 +15,15 @@ export class Board {
   boardService = async (): Promise<GameOutcome> => {
     // call server and get a fresh board
     const port = 3000
-    const result = await fetch(`http://localhost:${port}/spin`, {
-      method: 'POST'
-    })
+
+    //const result = await fetch(`http://localhost:${port}/spin`, {
+
+    const result = await fetch(
+      `https://pokeslot.netlify.app/.netlify/functions/server`,
+      {
+        method: 'POST'
+      }
+    )
     const data = await result.json()
     const outcome = data
     console.log('seteo')

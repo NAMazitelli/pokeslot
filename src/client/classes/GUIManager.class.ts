@@ -52,8 +52,8 @@ export class GUIManager {
   constructor() {
     this.advancedTexture
     this.loadedGUI = null
-    this.GUIJsonURL = 'http://localhost:3000/GUI'
-
+    //this.GUIJsonURL = 'http://localhost:3000/GUI'
+    this.GUIJsonURL = 'https://pokeslot.netlify.app/.netlify/functions/GUI'
     /* ---- CONTROLS ----- */
     this.buttonCtrl = null
     this.imageCtrl = null
