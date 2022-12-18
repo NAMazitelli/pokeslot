@@ -163,7 +163,7 @@ export class GameMode {
 
     this.machineMesh = SceneLoader.ImportMesh(
       '',
-      'https://raw.githubusercontent.com/NAMazitelli/pokeslot/main/',
+      'https://raw.githubusercontent.com/NAMazitelli/pokeslot/main/public',
       'Machine.glb',
       this.scene,
       (_m, _a, _b, animationGroups) => {
