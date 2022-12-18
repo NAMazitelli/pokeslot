@@ -1,6 +1,6 @@
 [build]
   command = "parcel build ./src/client/index.html"
-  functions = "src/server"
+#  functions = "src/server"
   publish = "dist"
 
 [functions]
