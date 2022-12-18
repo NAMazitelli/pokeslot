@@ -18,10 +18,6 @@ import { GameOutcome } from '../../shared/GameOutcome'
 
 import '@babylonjs/loaders'
 import 'lodash'
-type InitializeBabylonAppOptions = {
-  canvas: HTMLCanvasElement
-  assetsHostUrl?: string
-}
 
 export class GameMode {
   GUIManager: GUIManager
