@@ -1,0 +1,46 @@
+#loader {
+  width: 100vw;
+  height: 100vh;
+  background: #333;
+  z-index: 999;
+  position: fixed;
+  display: flex;
+  justify-content: center;
+  flex-direction: column;
+  align-items: center;
+  h2 {
+    color: #fff;
+    font-family: 'Roboto';
+    font-weight: 100;
+    letter-spacing: 5px;
+  }
+  .loader {
+    position: relative;
+    width: 100px;
+    height: 100px;
+    &::before {
+      content: '';
+      position: absolute;
+      width: 48px;
+      height: 48px;
+      border-radius: 50%;
+      top: 50%;
+      left: 0;
+      transform: translate(-5px, -50%);
+      background: linear-gradient(to right, #fff 50%, #dec800 50%) no-repeat;
+      background-size: 200% auto;
+      background-position: 100% 0;
+      animation: colorBallMoveX 1s linear infinite alternate;
+    }
+    &::after {
+      content: '';
+      position: absolute;
+      left: 50%;
+      top: 0;
+      transform: translateX(-50%);
+      width: 2px;
+      height: 100%;
+      background: #dec800;
+    }
+  }
+}

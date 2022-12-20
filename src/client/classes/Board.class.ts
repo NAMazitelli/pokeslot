@@ -1,57 +1,36 @@
-import { Tile } from './Tile.class'
 import { Scene } from '@babylonjs/core'
 import { GameOutcome } from '../../shared/GameOutcome'
+import { Tile } from './Tile.class'
+import { Service } from './Service.class'
 
 export class Board {
   board: number[][]
   tileBoard: Tile[][]
   scene: Scene
+  service: Service
   constructor(scene: Scene) {
     this.board = []
     this.tileBoard = []
     this.scene = scene
+    this.service = new Service()
   }
 
-  boardService = async (): Promise<GameOutcome> => {
-    // call server and get a fresh board
-    const port = 3000
-
-    //const result = await fetch(`http://localhost:${port}/spin`, {
-
-    const result = await fetch(
-      `https://pokeslot.netlify.app/.netlify/functions/server`,
-      {
-        method: 'POST'
-      }
-    )
-    const data = await result.json()
-    const outcome = data
-    console.log('seteo')
-
+  // Call service and draw the result.
+  async shuffleBoard(callback: (outcome: GameOutcome) => void) {
+    const outcome = await this.service.boardService()
     this.board = outcome.board
-    return outcome
+    this.drawBoard(false)
+    callback(outcome)
   }
 
-  shuffleBoard = async (callback: (outcome: GameOutcome) => void) => {
-    const outcome = await this.boardService()
-    if (this.board.length > 0) {
-      this.drawBoard(false)
-      callback(outcome)
-    }
+  // Call service to draw something and perform the stand by animation.
+  async standBy() {
+    const outcome = await this.service.boardService()
+    this.board = outcome.board
+    this.drawBoard(true)
   }
 
-  standBy = async () => {
-    await this.boardService()
-    console.log('hay board?')
-
-    if (this.board.length > 0) {
-      console.log('hay board')
-      console.log(this.board)
-
-      this.drawBoard(true)
-    }
-  }
-
+  // Set a given tile for given coordinates inside board.
   setBoardTile(rowIndex: number, tileIndex: number, tile: Tile) {
     if (!this.tileBoard[rowIndex]) {
       this.tileBoard[rowIndex] = []
@@ -60,19 +39,21 @@ export class Board {
     this.tileBoard[rowIndex][tileIndex] = tile
   }
 
-  getBoardTile(rowIndex: number, tileIndex: number) {
+  // Get the tile for given coordinates.
+  getBoardTile(rowIndex: number, tileIndex: number): Tile {
     return this.tileBoard[rowIndex][tileIndex]
   }
 
-  clearBoard = () => {
+  // Clear the board and destroy meshes.
+  clearBoard() {
     if (this.tileBoard.length > 0) {
       this.tileBoard.forEach(row => row.forEach(mesh => mesh.destroy()))
     }
   }
 
-  drawBoard = (standBy: boolean) => {
+  // Draw the board. If param is true, it will perform the stand by animation, else it will do the usual roll.
+  drawBoard(standBy: boolean) {
     this.clearBoard()
-    // draw the board
     const vHalf = this.board.length / 2
     this.board.reverse().forEach((row: number[], rowIndex: number) => {
       const hHalf = row.length / 2
@@ -84,6 +65,7 @@ export class Board {
           this.scene,
           standBy
         )
+
         this.setBoardTile(rowIndex, tileIndex, tile)
 
         tile.setMeshPosition(
@@ -91,6 +73,7 @@ export class Board {
           Math.round(rowIndex - vHalf) + 0.42,
           -0.55
         )
+
         tile.setMeshRotation(0, 0, -1.57)
       })
     })

@@ -1,0 +1,36 @@
+.coin {
+  opacity: 0;
+  height: var(--coin-size);
+  width: var(--coin-size);
+  margin: 0.5rem;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  position: absolute;
+  animation: 2s gravity ease-in infinite backwards,
+    6s positionCoins linear infinite backwards;
+  @for $i from 1 through 10 {
+    &:nth-child(#{$i}n) {
+      animation-delay: #{$i * 0.5}s;
+    }
+  }
+
+  &::before {
+    content: '';
+    display: block;
+    position: relative;
+    height: var(--coin-size);
+    width: var(--coin-size);
+    border-radius: 50%;
+    background-color: var(--face);
+    animation: spin 0.3s linear infinite;
+    background-image: var(--coin-face);
+    background-size: 100% 100%;
+    background-position: center;
+    background-blend-mode: overlay;
+  }
+
+  &.flip::before {
+    animation-name: flip;
+  }
+}

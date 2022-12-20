@@ -14,13 +14,6 @@ import * as spinButtonHover from '../../../public/images/spinButtonHover.png'
 import * as spinButtonDown from '../../../public/images/spinButtonDown.png'
 import * as spinButtonDisabled from '../../../public/images/spinButtonDisabled.png'
 
-type ButtonImages = {
-  spinButton: string
-  spinButtonHover: string
-  spinButtonDisabled: string
-  spinButtonDown: string
-}
-
 enum ButtonStates {
   Normal,
   Hover,
@@ -30,11 +23,9 @@ enum ButtonStates {
 
 export class GUIManager {
   advancedTexture?: AdvancedDynamicTexture
-  loadedGUI: AdvancedDynamicTexture | null
   GUIJsonURL: string
   buttonImages: ButtonImages
   buttonState: ButtonStates
-
   /* ---- CONTROLS ----- */
   buttonCtrl: Nullable<Button>
   imageCtrl: Nullable<Image>
@@ -51,9 +42,17 @@ export class GUIManager {
 
   constructor() {
     this.advancedTexture
-    this.loadedGUI = null
-    //this.GUIJsonURL = 'http://localhost:3000/GUI'
-    this.GUIJsonURL = 'https://pokeslot.netlify.app/.netlify/functions/GUI'
+    this.GUIJsonURL =
+      process.env.NODE_ENV === 'production'
+        ? 'https://pokeslot.netlify.app/.netlify/functions/GUI'
+        : 'http://localhost:3000/GUI'
+    this.buttonImages = {
+      spinButton: spinButton,
+      spinButtonHover: spinButtonHover,
+      spinButtonDisabled: spinButtonDisabled,
+      spinButtonDown: spinButtonDown
+    }
+    this.buttonState = ButtonStates.Normal
     /* ---- CONTROLS ----- */
     this.buttonCtrl = null
     this.imageCtrl = null
@@ -67,33 +66,25 @@ export class GUIManager {
     this.bgImage = null
     this.checkBox = null
     /* ---- END CONTROLS ----*/
-
-    this.buttonImages = {
-      spinButton: '',
-      spinButtonHover: '',
-      spinButtonDisabled: '',
-      spinButtonDown: ''
-    }
-    this.buttonState = ButtonStates.Normal
   }
 
-  loadUi = async (
+  // load ui from json
+  async loadUi(
     rollButtonCallback: () => void,
     betSliderCallback: (value: number) => void,
     callback: () => void
-  ) => {
+  ) {
     this.advancedTexture = AdvancedDynamicTexture.CreateFullscreenUI(
       'GUI',
       true
     )
-    this.loadedGUI = await this.advancedTexture.parseFromURLAsync(
-      this.GUIJsonURL
-    )
+    await this.advancedTexture.parseFromURLAsync(this.GUIJsonURL)
     this.setupControls(betSliderCallback)
     this.setupButton(rollButtonCallback)
     callback()
   }
 
+  // set up UI controls
   setupControls(betSliderCallback: (value: number) => void) {
     if (this.advancedTexture) {
       this.buttonCtrl = this.advancedTexture.getControlByName(
@@ -139,6 +130,7 @@ export class GUIManager {
     }
   }
 
+  // update all counters together
   updateAllCounters(
     small: number,
     big: number,
@@ -155,6 +147,85 @@ export class GUIManager {
     this.updateBetCounter(bet)
   }
 
+  // update button images
+  setButtonObservables(action: () => void) {
+    if (this.buttonCtrl) {
+      this.buttonCtrl.onPointerEnterObservable.add(() => {
+        if (this.buttonState === ButtonStates.Normal) {
+          document.body.style.cursor = 'pointer'
+          this.changeButtonState(ButtonStates.Hover)
+        }
+      })
+
+      this.buttonCtrl.onPointerOutObservable.add(() => {
+        if (this.buttonState === ButtonStates.Hover) {
+          document.body.style.cursor = 'default'
+          this.changeButtonState(ButtonStates.Normal)
+        }
+      })
+
+      this.buttonCtrl.onPointerDownObservable.add(() => {
+        this.changeButtonState(ButtonStates.Pressed)
+      })
+
+      this.buttonCtrl.onPointerUpObservable.add(async () => {
+        this.buttonPressedToggle()
+        action()
+      })
+    }
+  }
+
+  // update button state to disabled and back to normal after spinning
+  buttonPressedToggle() {
+    this.changeButtonState(ButtonStates.Disabled)
+    setTimeout(() => {
+      this.changeButtonState(ButtonStates.Normal)
+    }, 3600)
+  }
+
+  // set up button
+  setupButton(action: () => void) {
+    if (this.buttonCtrl) {
+      this.buttonCtrl.disabledColor = 'transparent'
+      this.changeButtonState(ButtonStates.Normal)
+      this.setButtonObservables(action)
+    }
+  }
+
+  // change button state to update image
+  changeButtonState(state: ButtonStates) {
+    this.buttonState = state
+    this.updateButtonImage()
+  }
+
+  // update button image based on state
+  updateButtonImage() {
+    if (this.buttonCtrl && this.imageCtrl) {
+      switch (this.buttonState) {
+        case ButtonStates.Normal:
+        default:
+          this.buttonCtrl.isEnabled = true
+          this.imageCtrl.source = this.buttonImages.spinButton
+          break
+        case ButtonStates.Hover:
+          this.imageCtrl.source = this.buttonImages.spinButtonHover
+          break
+
+        case ButtonStates.Pressed:
+          this.imageCtrl.source = this.buttonImages.spinButtonDown
+          break
+
+        case ButtonStates.Disabled:
+          this.buttonCtrl.isEnabled = false
+          this.imageCtrl.source = this.buttonImages.spinButtonDisabled
+          break
+      }
+    }
+  }
+
+  /*
+   * SEPARATE COUNTERS UPDATE METHODS
+   */
   updateSmallCounter(small: number) {
     if (this.smallLabel) {
       this.smallLabel.text = small.toString()
@@ -190,78 +261,7 @@ export class GUIManager {
       this.betLabel.text = bet.toString()
     }
   }
-
-  setButtonObservables(action: () => void) {
-    if (this.buttonCtrl) {
-      this.buttonCtrl.onPointerEnterObservable.add(() => {
-        if (this.buttonState === ButtonStates.Normal) {
-          this.changeButtonState(ButtonStates.Hover)
-        }
-      })
-
-      this.buttonCtrl.onPointerOutObservable.add(() => {
-        if (this.buttonState === ButtonStates.Hover) {
-          this.changeButtonState(ButtonStates.Normal)
-        }
-      })
-
-      this.buttonCtrl.onPointerDownObservable.add(() => {
-        this.changeButtonState(ButtonStates.Pressed)
-      })
-
-      this.buttonCtrl.onPointerUpObservable.add(async () => {
-        this.buttonPressedToggle()
-        action()
-      })
-    }
-  }
-
-  buttonPressedToggle() {
-    this.changeButtonState(ButtonStates.Disabled)
-    setTimeout(() => {
-      this.changeButtonState(ButtonStates.Normal)
-    }, 3600)
-  }
-
-  setupButton(action: () => void) {
-    if (this.buttonCtrl) {
-      this.buttonImages.spinButton = spinButton
-      this.buttonImages.spinButtonHover = spinButtonHover
-      this.buttonImages.spinButtonDisabled = spinButtonDisabled
-      this.buttonImages.spinButtonDown = spinButtonDown
-
-      this.buttonCtrl.disabledColor = 'transparent'
-      this.changeButtonState(ButtonStates.Normal)
-      this.setButtonObservables(action)
-    }
-  }
-
-  changeButtonState(state: ButtonStates) {
-    this.buttonState = state
-    this.updateButtonImage()
-  }
-
-  updateButtonImage() {
-    if (this.buttonCtrl && this.imageCtrl) {
-      switch (this.buttonState) {
-        case ButtonStates.Normal:
-        default:
-          this.buttonCtrl.isEnabled = true
-          this.imageCtrl.source = this.buttonImages.spinButton
-          break
-        case ButtonStates.Hover:
-          this.imageCtrl.source = this.buttonImages.spinButtonHover
-          break
-
-        case ButtonStates.Pressed:
-          this.imageCtrl.source = this.buttonImages.spinButtonDown
-          break
-
-        case ButtonStates.Disabled:
-          this.buttonCtrl.isEnabled = false
-          this.imageCtrl.source = this.buttonImages.spinButtonDisabled
-          break
-      }
-    }
-  }
+  /*
+   *  END SEPARATE COUNTERS UPDATE METHODS
+   */
 }

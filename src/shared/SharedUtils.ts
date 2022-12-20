@@ -1,26 +1,31 @@
-const TILE_RED = 1;
-const TILE_BLUE = 2;
-const TILE_GREEN = 3;
-const TILE_YELLOW = 4;
-const TILE_WHITE = 5;
+const TILE_BULBASAUR = 1
+const TILE_PIKACHU = 2
+const TILE_CHARMANDER = 3
+const TILE_SQUIRTLE = 4
+const TILE_EEVEE = 5
+const TILE_BALL = 6
 
-const getKeyValue = <U extends keyof T, T extends object>(key: U) => (obj: T) =>
-  obj[key];
+const getKeyValue =
+  <U extends keyof T, T extends object>(key: U) =>
+  (obj: T) =>
+    obj[key]
 
 const TILES_ARRAY = [
-    TILE_RED,
-    TILE_BLUE,
-    TILE_GREEN,
-    TILE_YELLOW,
-    TILE_WHITE,
-];
+  TILE_BULBASAUR,
+  TILE_PIKACHU,
+  TILE_CHARMANDER,
+  TILE_SQUIRTLE,
+  TILE_EEVEE,
+  TILE_BALL
+]
 
 export {
-    TILE_RED,
-    TILE_BLUE,
-    TILE_GREEN,
-    TILE_YELLOW,
-    TILE_WHITE,
-    TILES_ARRAY,
-    getKeyValue,
+  TILE_BULBASAUR,
+  TILE_PIKACHU,
+  TILE_CHARMANDER,
+  TILE_SQUIRTLE,
+  TILE_EEVEE,
+  TILE_BALL,
+  TILES_ARRAY,
+  getKeyValue
 }

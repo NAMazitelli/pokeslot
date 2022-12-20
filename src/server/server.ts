@@ -9,5 +9,5 @@ const app = express()
 
 app.use(cors())
 app.get('/GUI', guiController)
-app.post('/spin', mainController)
+app.get('/spin', mainController)
 app.listen(port)
